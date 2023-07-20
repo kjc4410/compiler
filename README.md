@@ -9,3 +9,7 @@
 "eof", "break", "case", "const", "continue", "default",<br>
 "do", "else", "for", "if", "int", "return",<br>
 "switch", "void", "while", "{", "||", "}"<br>
+
+1단계: 공백제거
+ - 공백제거를 위해 텍스트로부터 문자를 받아 isspace() 함수를 사용해, 공백(\n, \t, \v, \f, \r, " ")을 무시
+ - 하지만 현재 문자가 몇 번 라인에 있는지 알아낼 수 없어, if를 사용해 직접 구분 
