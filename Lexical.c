@@ -10,6 +10,7 @@ int getNumber(char firstCharacter);
 int superLetterOrDigit(char ch);
 int superLetter(char ch);
 void lexicalError(int n);
+void printToken(struct tokenType token);
 struct tokenType scanner();
 
 struct tokenType {
@@ -72,6 +73,13 @@ enum tsymbol tnum[NO_KEYWORD] = {
       tdo, telse,  tfor,  tif,  tint,   treturn,
       tswitch, tvoid,  twhile
 };
+
+int main() {
+    sourceFile = fopen("test.mc", "r");
+    scanner();
+    fclose(sourceFile);
+    return 0;
+}
 
 struct tokenType scanner()
 {
@@ -242,13 +250,12 @@ struct tokenType scanner()
             break;
         }
         } // switch end
-    } while (token.number == tnull);
+    } while (token.number != teof);
     //printf("%d\n", token.number);
     return token;
 } // end of scanner
 
-void lexicalError(int n)
-{
+void lexicalError(int n){
     printf(" *** Lexical Error : ");
     switch (n) {
     case 1: printf("an identifier length must be less than 12.\n");
@@ -261,19 +268,16 @@ void lexicalError(int n)
         break;
     }
 }
-int superLetter(char ch) //알파벳 혹은_인지 체크 : 숫자가 제일 먼저 나올 수 없기에
-{
+int superLetter(char ch){ //알파벳 혹은_인지 체크 : 숫자가 제일 먼저 나올 수 없기에
     if (isalpha(ch) || ch == '_') return 1; /*  isalpha함수 파라미터에 넣어서 알파벳인지 판별*/
     else return 0;
 }
-int superLetterOrDigit(char ch)
-{
+int superLetterOrDigit(char ch){
     if (isalnum(ch) || ch == '_') return 1; /* c가 알파벳이거나 숫자인지 판별
                                            알파벳 대문자: 1, 알파벳 소문자: 2, 숫자: 4 else: 0 */
     else return 0;
 }
-int getNumber(char firstCharacter)
-{
+int getNumber(char firstCharacter){
     int num = 0;
     int value;
     char ch;
@@ -302,8 +306,7 @@ int getNumber(char firstCharacter)
                                             다시 넣을 파일 성공 시 ch리턴  */
     return num;
 }
-int hexValue(char ch) //16진수 변환
-{
+int hexValue(char ch){ //16진수 변환
     switch (ch) {
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
@@ -314,4 +317,12 @@ int hexValue(char ch) //16진수 변환
         return (ch - 'a' + 10);
     default: return -1;
     }
+}
+void printToken(struct tokenType token){
+    if (token.number == tident)
+        printf("Token ID = \'%s\' \n", token.value.id);
+    else if (token.number == tnumber)
+        printf("Token num = \'%d\'\n", token.value.num);
+    else
+        printf("Token Symbol = \'%s\'\n", tokenName[token.number]);
 }
