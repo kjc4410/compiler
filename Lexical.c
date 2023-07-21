@@ -15,6 +15,7 @@ struct tokenType scanner();
 
 struct tokenType {
     int number; //토큰 번호를 갖는 필드
+    int line; //각 라인을 정의
     union {
         char id[ID_LENGTH]; // 토큰 값을 갖는 명칭
         int num;               // 토큰 값을 갖는 상수
@@ -89,7 +90,13 @@ struct tokenType scanner()
 
     token.number = tnull;
     do {
-        while (isspace(ch = fgetc(sourceFile)));	// 공백을 확인하고 제거함
+         ch = fgetc(sourceFile);
+        if (ch == ' ' || ch == '\t' || ch == '\r')
+            continue; // 공백 문자는 토큰으로 처리하지 않고 건너뜀
+        if (ch == '\n') { // 엔터키(개행 문자)를 만났을 때
+            token.line++; // 라인 수 증가
+            continue; // 개행 문자는 토큰으로 처리하지 않고 건너뜀
+        }
         if (superLetter(ch)) { // 알파벳 or _인지 체크 && 처음엔 숫자가 나오면 안되기에
 
             i = 0;
