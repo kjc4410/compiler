@@ -1,0 +1,68 @@
+vector<int> CF[99999];
+1. 
+    CF[1].push_back(2);
+    CF[1].push_back(14);
+    CF[2].push_back(3);
+    CF[2].push_back(4);
+    CF[3].push_back(5);
+    CF[3].push_back(6);
+    CF[3].push_back(7);
+    CF[4].push_back(8);
+    CF[4].push_back(9);
+    CF[4].push_back(10);
+    CF[5].push_back(11);
+    CF[6].push_back(11);
+    CF[7].push_back(11);
+    CF[8].push_back(12);
+    CF[9].push_back(12);
+    CF[10].push_back(12);
+    CF[11].push_back(13);
+    CF[12].push_back(13);
+    CF[14].push_back(13);
+
+2.
+CF[1].push_back(2);
+CF[2].push_back(3);
+CF[2].push_back(4);
+CF[3].push_back(5);
+CF[4].push_back(5);
+CF[5].push_back(6);
+CF[5].push_back(7);
+CF[6].push_back(2);
+
+3.
+CF[1].push_back(2);
+CF[2].push_back(3);
+CF[3].push_back(4);
+CF[4].push_back(5);
+CF[5].push_back(1);
+
+4.
+CF[1].push_back(2);
+CF[1].push_back(3);
+CF[2].push_back(7);
+CF[3].push_back(4);
+CF[3].push_back(5);
+CF[4].push_back(6);
+CF[5].push_back(6);
+CF[6].push_back(7);
+
+5.
+CF[1].push_back(2);
+CF[1].push_back(5);
+CF[2].push_back(3);
+CF[2].push_back(4);
+CF[3].push_back(6);
+CF[4].push_back(6);
+CF[5].push_back(1);
+CF[5].push_back(7);
+CF[6].push_back(7);
+
+6.
+CF[1].push_back(2);
+CF[2].push_back(3);
+CF[2].push_back(4);
+CF[2].push_back(6);
+CF[3].push_back(5);
+CF[4].push_back(5);
+CF[5].push_back(2);
