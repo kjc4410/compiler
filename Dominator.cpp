@@ -30,8 +30,6 @@ void Dom(int node) {
 
         if (old != Dominator[connected]) 
             Dom(connected);
-        else
-            return;
     }
 }
 int main() {
