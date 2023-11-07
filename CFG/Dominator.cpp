@@ -32,8 +32,16 @@ void Dom(int node) {
             Dominator[connected] = Dominator[node];
 
         //변화가 감지되었다면 다시 탐색
-        if (old != Dominator[connected]) 
+        if (old != Dominator[connected]){
+            if(!old.empty()) //기존 Dominator[connected]에서 맨 뒤를 뺀 값이 교집합으로 구한 것과 같다면
+                old.pop_back(); // 더 이상 수행할 필요 없음(사이클이 있다는 것)
+            if (old == Dominator[connected]) { 
+            if(old == Dominator[connected]){
+                Dominator[connected].push_back(connected);
+                return; // 뺀 값을 다시 넣어주고 리턴
+            }
             Dom(connected);
+        }
     }
 }
 
