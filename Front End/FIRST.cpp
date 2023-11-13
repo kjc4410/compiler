@@ -13,6 +13,9 @@ enum Tokens {
 	Operator,
 };
 bool isOperator(char ch);
+void FIRST(string s);
+void FOLLOW(string s);
+void Processing();
 
 string arrow = "->";
 using Head = string;
@@ -45,6 +48,22 @@ void FIRST(string s) {
 	}
 }
 
+// Start symbol에 $를 추가하는 코드
+void FOLLOW(string s){
+	auto range = Rules.equal_range(s);
+
+	for(auto it = range.first; it != range.second; it++){
+		lhs vec = it->second;
+		for(int i=0;i < vec.size();i++){
+			if(vec[i+1].second == Nonterminal)
+				cout << vec[i+1].second<<" ";
+			else if(vec[i+1].seconde == Terminal)
+				FIRST(vec[i+1].first);
+			else
+				FOLLOW(vec[i].first);
+		}
+	}
+}
 void Processing() {
 	for (auto& line : Grammar) {
 		int index = line.find(arrow);
