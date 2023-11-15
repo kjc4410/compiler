@@ -41,7 +41,7 @@ vector<pair<string, BodyToken>> OnlyBody;
 // head는 생성규칙의 lhs 
 unordered_multimap<Head, BodyToken> Rules;
 
-unordered_set<string> NontermTable;
+set<string> NontermTable;
 unordered_set<string> TermTable;
 
 unordered_map<string, vector<string>> FIRST_SET;
@@ -70,7 +70,7 @@ void FIRST(string nonterminal) {
 	FIRST_SET.insert({ nonterminal,v });
 }
 
-void FOLLOW1() {
+void FOLLOW() {
 	for (auto& nonterm : NontermTable) {
 		for (auto& i : OnlyBody) {
 			BodyToken rule_body = i.second;
@@ -92,8 +92,7 @@ void FOLLOW1() {
 			}
 		}
 	}
-}
-void FOLLOW2() {
+
 	bool updated = true;
 	while (updated) {
 		updated = false;
@@ -106,7 +105,6 @@ void FOLLOW2() {
 					if (rule_body[j].first == nonterm && j + 1 == rule_body.size()) { //규칙에서 nonterminal 찾기
 						string cur = rule_body[j].first;
 
-
 						for (auto& k : FOLLOW_SET[rule_name]) {
 
 							if (find(FOLLOW_SET[cur].begin(), FOLLOW_SET[cur].end(), k) == FOLLOW_SET[cur].end()) {
@@ -115,18 +113,19 @@ void FOLLOW2() {
 							}
 						}
 
-
 						// 맨 뒤의 noterminal들의 first를 확인하고 nullable할 때 이전 토큰이 nonterminal인지 확인하고 
 						// 맞다면 이전 nonterminal에도 head의 follow 추가하고 다시 이전 nonterminal의 first 검사 <--- 이를 반복 
 						int cnt = 0;
 						while (cnt < rule_body.size()) {
 							bool isEpsilon = false;
-							for (auto& k : FIRST_SET[rule_body[j - cnt].first])
+							string curToken = rule_body[j-cnt].first;
+							for (auto& k : FIRST_SET[curToken])
 								if (k == "epsilon") {
 
 									isEpsilon = true;
 									cnt++;
-									if (rule_body[j - cnt].second == Nonterminal) {
+									Tokens KindOfBackToken = rule_body[j - cnt].second;
+									if (KindOfBackToken == Nonterminal) {
 
 										string back = rule_body[j - cnt].first;
 										for (auto& k : FOLLOW_SET[rule_name]) {
@@ -136,27 +135,15 @@ void FOLLOW2() {
 											}
 										}
 									}
-									else
-										break;
+									else break;
 								}
-							if (isEpsilon == false)
-								break;
+							if (isEpsilon == false) break;
 						}
 					}
 				}
 			}
 		}
 	}
-}
-void FOLLOW() {
-	FOLLOW_SET[starting].push_back("$");
-	FOLLOW1();
-
-		FOLLOW2();
-	for (auto& i : NontermTable) {
-
-	}
-		
 }
 
 void Processing() {
@@ -255,6 +242,7 @@ int main() {
 		std::cout << "}\n";
 	}
 
+	FOLLOW_SET[starting].push_back("$");
 	FOLLOW();
 
 	std::cout << "\n-----FOLLOW-----\n";
