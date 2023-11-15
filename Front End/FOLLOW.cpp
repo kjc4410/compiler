@@ -47,27 +47,35 @@ unordered_set<string> TermTable;
 unordered_map<string, vector<string>> FIRST_SET;
 unordered_map<string, vector<string>> FOLLOW_SET;
 
-//FIRST를 구하는 함수
 void FIRST(string nonterminal) {
 	auto range = Rules.equal_range(nonterminal);
-	vector<string> v; //FIRST의 원소를 저장하는 벡터
 
 	//unordered_multimap에서 중복되는 값들을 찾는 과정
 	for (auto it = range.first; it != range.second; it++) {
 		// vector<pair<string, Tokens>>에 접근
 		BodyToken vec = it->second;
 
-		// 생성규칙의 첫 번째가 terminal이면 이를 추가
-		if (vec[0].second == Terminal)
-			v.push_back(vec[0].first);
-		else { // nonterminal이면 해당 nonterminal의 first를 구함
-			FIRST(vec[0].first); //재귀를 통해 first를 구하고
-			if (!FIRST_SET[vec[0].first].empty())
-				for (auto& i : FIRST_SET[vec[0].first])
-					v.push_back(i);
+		for(int i=0;i<vec.size();i++){
+			if(vec[i].second == Terminal){
+				if (find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(),vec[0].first) == FIRST_SET[nonterminal].end())
+					FIRST_SET[nonterminal].push_back(vec[0].first);
+				break;
+			}
+			else if(vec[i].second == Nonterminal){
+				FIRST(vec[i].first);
+				bool isEpsilon = false;
+
+				for(auto &t : FIRST_SET[vec[i].first]){
+					if (find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(), t) == FIRST_SET[nonterminal].end())
+						FIRST_SET[nonterminal].push_back(t);
+					if(t == "epsilon")
+						isEpsilon = true;
+				}
+
+				if(isEpsilon == false) break;
+			}
 		}
 	}
-	FIRST_SET.insert({ nonterminal,v });
 }
 
 void FOLLOW() {
@@ -75,19 +83,38 @@ void FOLLOW() {
 		for (auto& i : OnlyBody) {
 			BodyToken rule_body = i.second;
 			string rule_name = i.first;
+			
 			for (int j = 0; j < rule_body.size(); j++) {
+
 				if (rule_body[j].first == nonterm && j + 1 != rule_body.size()) {
-					if (rule_body[j + 1].second == Nonterminal) {
-						for (auto& k : FIRST_SET[rule_body[j + 1].first])
-							if (k != "epsilon")
-								if (find(FOLLOW_SET[nonterm].begin(), FOLLOW_SET[nonterm].end(), k) == FOLLOW_SET[nonterm].end()) {
-									FOLLOW_SET[nonterm].push_back(k);
-								}
-					}
-					else if (rule_body[j + 1].second == Terminal)
-						if (find(FOLLOW_SET[nonterm].begin(), FOLLOW_SET[nonterm].end(), rule_body[j + 1].first) == FOLLOW_SET[nonterm].end()) {
-							FOLLOW_SET[nonterm].push_back(rule_body[j + 1].first);
+					int cur = j;
+
+					
+					while(cur < rule_body.size()-1){
+						
+						//다음 토큰이 terminal이라면
+						if (rule_body[cur + 1].second == Terminal){
+							if (find(FOLLOW_SET[nonterm].begin(), FOLLOW_SET[nonterm].end(), rule_body[cur + 1].first) == FOLLOW_SET[nonterm].end())
+								FOLLOW_SET[nonterm].push_back(rule_body[cur + 1].first);
+							break;
 						}
+						// 다음 토큰이 nonterminal일 때
+						else if(rule_body[cur+1].second == Nonterminal){
+							bool isEpsilon = false;
+
+							for(auto &k : FIRST_SET[rule_body[cur+1].first]){
+								if(k == "epsilon")
+									isEpsilon = true;
+
+								else if(k != "epsilon")
+									if (find(FOLLOW_SET[nonterm].begin(), FOLLOW_SET[nonterm].end(), k) == FOLLOW_SET[nonterm].end())
+										FOLLOW_SET[nonterm].push_back(k);	
+							}
+							if(isEpsilon) cur++;
+							else break;
+						}
+						else if(cur >= rule_body.size()) break;
+					}
 				}
 			}
 		}
@@ -135,9 +162,11 @@ void FOLLOW() {
 											}
 										}
 									}
-									else break;
+									else
+										break;
 								}
-							if (isEpsilon == false) break;
+							if (isEpsilon == false)
+								break;
 						}
 					}
 				}
