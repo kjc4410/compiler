@@ -1,0 +1,47 @@
+//------Test1------//
+E -> T ES
+ES -> + T ES | epsilon
+T -> F TS
+TS -> * F TS | epsilon
+F -> ( E ) | id
+
+//-----ANSWER-----//
+FOLLOW(E)= { $ ) }
+FOLLOW(ES)= { $, ) }
+FOLLOW(F)= { *, +, $ ) }
+FOLLOW(T)= { +, $, ) }
+FOLLOW(TS)= { +, $, ) }
+
+----------------------------------------------------
+
+//------Test2------//
+S -> a B D h
+B -> c C
+C -> b C | epsilon
+D -> E F
+E -> g | epsilon
+F -> f | epsilon
+
+//-----ANSWER-----//
+FOLLOW(S) = { $ } 
+FOLLOW(B) = { g , f , h }
+FOLLOW(C) = { g , f , h }
+FOLLOW(D) = { h }
+FOLLOW(E) = { f , h }
+FOLLOW(F) = { h }
+
+----------------------------------------------------
+
+//------Test3------//
+S -> A C B | C b b | B a
+A -> d a | B C
+B-> g | epsilon
+C-> h | epsilon
+
+//-----ANSWER-----//
+FOLLOW(S) = { $ }
+FOLLOW(A)  = { h, g, $ }
+FOLLOW(B) = { a, $, h, g }
+FOLLOW(C) = { b, g, $, h }
+
+----------------------------------------------------
