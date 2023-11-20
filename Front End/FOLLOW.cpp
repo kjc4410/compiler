@@ -58,7 +58,7 @@ void FIRST(string nonterminal) {
 		for(int i=0;i<vec.size();i++){
 			if(vec[i].second == Terminal){
 				if (find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(),vec[0].first) == FIRST_SET[nonterminal].end())
-					FIRST_SET[nonterminal].push_back(vec[0].first);
+					FIRST_SET[nonterminal].push_back(vec[i].first);
 				break;
 			}
 			else if(vec[i].second == Nonterminal){
