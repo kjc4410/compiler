@@ -89,9 +89,7 @@ void FOLLOW() {
 				if (rule_body[j].first == nonterm && j + 1 != rule_body.size()) {
 					int cur = j;
 
-					
 					while(cur < rule_body.size()-1){
-						
 						//다음 토큰이 terminal이라면
 						if (rule_body[cur + 1].second == Terminal){
 							if (find(FOLLOW_SET[nonterm].begin(), FOLLOW_SET[nonterm].end(), rule_body[cur + 1].first) == FOLLOW_SET[nonterm].end())
@@ -139,7 +137,6 @@ void FOLLOW() {
 								updated = true;
 							}
 						}
-
 						// 맨 뒤의 noterminal들의 first를 확인하고 nullable할 때 이전 토큰이 nonterminal인지 확인하고 
 						// 맞다면 이전 nonterminal에도 head의 follow 추가하고 다시 이전 nonterminal의 first 검사 <--- 이를 반복 
 						int cnt = 0;
@@ -187,7 +184,6 @@ void Processing() {
 		NontermTable.insert(LHS);
 		if (counting == 0)
 			starting = LHS;
-		//NontermTable.push_back(LHS);
 
 		string RHS = line.substr(index + 2, line.size() - index + 2);
 
@@ -234,8 +230,6 @@ void Processing() {
 		std::cout << i.first << ": " << i.second << endl;
 	std::cout << endl;
 
-
-
 	std::cout << "Terminal 종류: \n";
 	for (auto& i : TermTable)
 		std::cout << i << " " << endl;
@@ -262,7 +256,7 @@ int main() {
 
 	Processing();
 
-	std::cout << "\n------FIST------\n";
+	std::cout << "\n------FIRST------\n";
 	for (auto& i : NontermTable) {
 		std::cout << "FIRST(" << i << ")= { ";
 		FIRST(i);
