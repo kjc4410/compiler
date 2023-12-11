@@ -7,6 +7,7 @@
 #include<vector>
 #include<unordered_map>
 #include<unordered_set>
+#include<chrono>
 using namespace std;
 
 /*
@@ -34,12 +35,12 @@ using Head = string;
 using Body = string;
 using BodyToken = vector<pair<string, Tokens>>;
 
-unordered_multimap<Head, Body> Rule;
+unordered_multimap<Head, Body> Rule; //임시
 vector<pair<string, BodyToken>> OnlyBody;
 
 // lhs에서 body를 토큰화하기 위해 사용
 // head는 생성규칙의 lhs 
-unordered_multimap<Head, BodyToken> Rules;
+unordered_multimap<Head, BodyToken> Rules; //임시
 
 set<string> NontermTable;
 unordered_set<string> TermTable;
@@ -47,6 +48,7 @@ unordered_set<string> TermTable;
 unordered_map<string, vector<string>> FIRST_SET;
 unordered_map<string, vector<string>> FOLLOW_SET;
 
+//Using unordered_multimap
 void FIRST(string nonterminal) {
 	auto range = Rules.equal_range(nonterminal);
 
@@ -73,6 +75,40 @@ void FIRST(string nonterminal) {
 				}
 
 				if(isEpsilon == false) break;
+			}
+		}
+	}
+}
+//Using vector
+void FIRST2(string nonterminal){
+
+	for(auto &i : OnlyBody){
+		if(nonterminal == i.first){
+			string head = i.first;
+			rhsTokens body = i.second;
+
+			for(int i=0;i<body.size();i++){
+
+				if(body[i].second == Terminal){
+					if(find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(), body[0].first)==FIRST_SET[nonterminal].end())
+						FIRST_SET[head].push_back(body[i].first);
+					break;
+				}
+				else if(body[i].second == Nonterminal){
+					// 해당 Nonterminal의 규칙으로 가서 first 탐색
+					FIRST(body[i].first);
+					bool isEpsilon = false;
+					
+					//해당 Nonterminal의 FIRST_SET 다 추가
+					for(auto &t : FIRST_SET[body[i].first]){
+						if(find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(), t) == FIRST_SET[nonterminal].end())
+							FIRST_SET[nonterminal].push_back(t);
+						
+						if(t == "epsilon")
+							isEpsilon=true;
+					}
+					if(isEpsilon == false) break;
+				}
 			}
 		}
 	}
