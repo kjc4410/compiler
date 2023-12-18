@@ -9,7 +9,6 @@ vector<int> Frontier[15];
 int node_size;
 // 두 벡터의 교집합 계산
 vector<int> find_disjoint(vector<int> &v1, vector<int> &v2) {
-    int last = v1.back();
     vector<int> result;
     set_intersection(
         v1.begin(), v1.end(),
@@ -35,7 +34,6 @@ void Dom(int node) {
         if (old != Dominator[connected]){
             if(!old.empty()) //기존 Dominator[connected]에서 맨 뒤를 뺀 값이 교집합으로 구한 것과 같다면
                 old.pop_back(); // 더 이상 수행할 필요 없음(사이클이 있다는 것)
-            if (old == Dominator[connected]) { 
             if(old == Dominator[connected]){
                 Dominator[connected].push_back(connected);
                 return; // 뺀 값을 다시 넣어주고 리턴
@@ -98,81 +96,28 @@ void dfs(int node) {
 int main() {
     int entry = 1,cnt=1;
     //--1--
-    /*
-    CF[1].push_back(2);
-    CF[1].push_back(14);
-    CF[2].push_back(3);
-    CF[2].push_back(4);
-    CF[3].push_back(5);
-    CF[3].push_back(6);
-    CF[3].push_back(7);
-    CF[4].push_back(8);
-    CF[4].push_back(9);
-    CF[4].push_back(10);
-    CF[5].push_back(11);
-    CF[6].push_back(11);
-    CF[7].push_back(11);
-    CF[8].push_back(12);
-    CF[9].push_back(12);
-    CF[10].push_back(12);
-    CF[11].push_back(13);
-    CF[12].push_back(13);
-    CF[14].push_back(13);
-    */
     //--2--
-    /*
-    CF[1].push_back(2);
-    CF[2].push_back(3);
-    CF[2].push_back(4);
-    CF[3].push_back(5);
-    CF[4].push_back(5);
-    CF[5].push_back(6);
-    CF[5].push_back(7);
-    CF[6].push_back(2);
-    */
     //--3--
-    /*
-    CF[1].push_back(2);
-    CF[2].push_back(3);
-    CF[3].push_back(4);
-    CF[4].push_back(5);
-    CF[5].push_back(1);
-    */
     //--4--
-    
-    CF[1].push_back(2);
-    CF[1].push_back(3);
-    CF[2].push_back(7);
-    CF[3].push_back(4);
-    CF[3].push_back(5);
-    CF[4].push_back(6);
-    CF[5].push_back(6);
-    CF[6].push_back(7);
-    
     //--5--
-    /*
-    CF[1].push_back(2);
-    CF[1].push_back(5);
-    CF[2].push_back(3);
-    CF[2].push_back(4);
-    CF[3].push_back(6);
-    CF[4].push_back(6);
-    CF[5].push_back(1);
-    CF[5].push_back(7);
-    CF[6].push_back(7);
-    */
-    
     //--6--
-    /*
-    CF[1].push_back(2);
-    CF[2].push_back(3);
-    CF[2].push_back(4);
-    CF[2].push_back(6);
-    CF[3].push_back(5);
-    CF[4].push_back(5);
-    CF[5].push_back(2);
-    */
 
+   CF[1].push_back(2);
+   CF[1].push_back(3);
+   CF[2].push_back(3);
+   CF[3].push_back(4);
+   CF[4].push_back(3);
+   CF[4].push_back(5);
+   CF[4].push_back(6);
+   CF[5].push_back(7);
+   CF[6].push_back(7);
+   CF[7].push_back(4);
+   CF[7].push_back(8);
+   CF[8].push_back(9);
+   CF[8].push_back(10);
+   CF[8].push_back(3);
+   CF[9].push_back(1);
+   CF[10].push_back(7);
     //----------- Dominator 트리 계산---------//
     Dom(entry);  // 시작 노드를 1로 가정
 
