@@ -33,58 +33,30 @@ string arrow = "->";
 string starting;
 using Head = string;
 using Body = string;
-using BodyToken = vector<pair<string, Tokens>>;
+using rhsTokens = vector<pair<string, Tokens>>;
 
-unordered_multimap<Head, Body> Rule; //임시
-vector<pair<string, BodyToken>> OnlyBody;
 
-// lhs에서 body를 토큰화하기 위해 사용
+typedef struct RuleInfo{
+	string head;
+	int RuleNum;
+}RuleInfo;
+
+vector<pair<RuleInfo, rhsTokens>> Production;
+// lhs에서 body를 토큰으로 구분, 중복허용
 // head는 생성규칙의 lhs 
-unordered_multimap<Head, BodyToken> Rules; //임시
 
 set<string> NontermTable;
 unordered_set<string> TermTable;
 
-unordered_map<string, vector<string>> FIRST_SET;
-unordered_map<string, vector<string>> FOLLOW_SET;
+unordered_map<string, vector<string>> FIRST_SET;          //FIRST 저장
+unordered_map<string, vector<string>> FOLLOW_SET;         //FOLLOW 저장
 
-//Using unordered_multimap
-void FIRST(string nonterminal) {
-	auto range = Rules.equal_range(nonterminal);
+// rhsTokens = vector<pair<string, Tokens>>
+void FIRST(string nonterminal){
 
-	//unordered_multimap에서 중복되는 값들을 찾는 과정
-	for (auto it = range.first; it != range.second; it++) {
-		// vector<pair<string, Tokens>>에 접근
-		BodyToken vec = it->second;
-
-		for(int i=0;i<vec.size();i++){
-			if(vec[i].second == Terminal){
-				if (find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(),vec[0].first) == FIRST_SET[nonterminal].end())
-					FIRST_SET[nonterminal].push_back(vec[i].first);
-				break;
-			}
-			else if(vec[i].second == Nonterminal){
-				FIRST(vec[i].first);
-				bool isEpsilon = false;
-
-				for(auto &t : FIRST_SET[vec[i].first]){
-					if (find(FIRST_SET[nonterminal].begin(), FIRST_SET[nonterminal].end(), t) == FIRST_SET[nonterminal].end())
-						FIRST_SET[nonterminal].push_back(t);
-					if(t == "epsilon")
-						isEpsilon = true;
-				}
-
-				if(isEpsilon == false) break;
-			}
-		}
-	}
-}
-//Using vector
-void FIRST2(string nonterminal){
-
-	for(auto &i : OnlyBody){
-		if(nonterminal == i.first){
-			string head = i.first;
+	for(auto &i : Production){
+		if(nonterminal == i.first.head){
+			string head = i.first.head;
 			rhsTokens body = i.second;
 
 			for(int i=0;i<body.size();i++){
@@ -113,12 +85,11 @@ void FIRST2(string nonterminal){
 		}
 	}
 }
-
 void FOLLOW() {
-	for (auto& nonterm : NontermTable) {
-		for (auto& i : OnlyBody) {
-			BodyToken rule_body = i.second;
-			string rule_name = i.first;
+	for (auto& nonterm : NontermTable){
+		for (auto& i : Production) {
+			rhsTokens rule_body = i.second;
+			string rule_name = i.first.head;
 			
 			for (int j = 0; j < rule_body.size(); j++) {
 
@@ -126,6 +97,7 @@ void FOLLOW() {
 					int cur = j;
 
 					while(cur < rule_body.size()-1){
+						
 						//다음 토큰이 terminal이라면
 						if (rule_body[cur + 1].second == Terminal){
 							if (find(FOLLOW_SET[nonterm].begin(), FOLLOW_SET[nonterm].end(), rule_body[cur + 1].first) == FOLLOW_SET[nonterm].end())
@@ -158,9 +130,9 @@ void FOLLOW() {
 	while (updated) {
 		updated = false;
 		for (auto& nonterm : NontermTable) {
-			for (auto& i : OnlyBody) {
-				BodyToken rule_body = i.second;
-				string rule_name = i.first;
+			for (auto& i : Production) {
+				rhsTokens rule_body = i.second;
+				string rule_name = i.first.head;
 				for (int j = 0; j < rule_body.size(); j++) {
 
 					if (rule_body[j].first == nonterm && j + 1 == rule_body.size()) { //규칙에서 nonterminal 찾기
@@ -173,6 +145,7 @@ void FOLLOW() {
 								updated = true;
 							}
 						}
+
 						// 맨 뒤의 noterminal들의 first를 확인하고 nullable할 때 이전 토큰이 nonterminal인지 확인하고 
 						// 맞다면 이전 nonterminal에도 head의 follow 추가하고 다시 이전 nonterminal의 first 검사 <--- 이를 반복 
 						int cnt = 0;
@@ -208,63 +181,74 @@ void FOLLOW() {
 	}
 }
 
+void LOOKAHEAD(){
+
+}
+
 void Processing() {
 	int counting = 0;
 	for (auto& line : Grammar) {
-		int index = line.find(arrow);
+		int lhs_end_index = line.find(arrow);
 
 		string LHS;
-		for (int i = 0; i < index; i++)
+		for (int i = 0; i < lhs_end_index; i++)
 			if (line[i] != ' ')
 				LHS += line[i];
+
 		NontermTable.insert(LHS);
 		if (counting == 0)
 			starting = LHS;
 
-		string RHS = line.substr(index + 2, line.size() - index + 2);
+		// arrow size가 2
+		string RHS = line.substr(lhs_end_index + 2, line.size() - lhs_end_index + 2);
 
 		istringstream rhs(RHS);
-		string p;
-		while (getline(rhs, p, '|')) {
-			Rule.insert({ LHS,p });
+		string alternative;
+		while (getline(rhs, alternative, '|')) {
+
 			int i = 0;
-			BodyToken body;
-			while (i < p.size()) {
+			rhsTokens body;
+			RuleInfo ruleinfo;
+			while (i < alternative.size()) {
 				string token;
 				Tokens kind;
-				if (p[i] == ' ') {
+				if (alternative[i] == ' ') {
 					i++;
 					continue;
 				}
-				else if (isupper(p[i])) {
-					while (isupper(p[i]))
-						token += p[i++];
+				else if (isupper(alternative[i])) {
+					while (isupper(alternative[i]))
+						token += alternative[i++];
 					kind = Nonterminal;
 					NontermTable.insert(token);
 				}
-				else if (islower(p[i])) {
-					while (islower(p[i]))
-						token += p[i++];
+				else if (islower(alternative[i])) {
+					while (islower(alternative[i]))
+						token += alternative[i++];
 					kind = Terminal;
 					TermTable.insert(token);
 				}
 				else {
-					while (isOperator(p[i]))
-						token += p[i++];
+					while (isOperator(alternative[i]))
+						token += alternative[i++];
 					kind = Terminal;
 					TermTable.insert(token);
 				}
-				body.push_back(make_pair(token, kind));
-			}
-			Rules.insert({ LHS, body });
-			OnlyBody.push_back({ LHS ,body });
+				body.push_back({token, kind});
+			}		
+			ruleinfo.head=LHS;
+			ruleinfo.RuleNum = counting;
+			Production.push_back({ruleinfo, body});
 		}
-		counting++;
+		counting++;	
 	}
 	std::cout << "--Rule-- \n";
-	for (auto& i : Rule)
-		std::cout << i.first << ": " << i.second << endl;
-	std::cout << endl;
+	for (auto& i : Production){
+        std::cout << i.first.head << "-> "; 
+		for(auto& j: i.second)
+            std::cout<< j.first<<" ";
+	    std::cout << endl;
+    }
 
 	std::cout << "Terminal 종류: \n";
 	for (auto& i : TermTable)
@@ -292,6 +276,7 @@ int main() {
 
 	Processing();
 
+	chrono::system_clock::time_point starts = chrono::system_clock::now();
 	std::cout << "\n------FIRST------\n";
 	for (auto& i : NontermTable) {
 		std::cout << "FIRST(" << i << ")= { ";
@@ -300,6 +285,9 @@ int main() {
 			std::cout << j << " ";
 		std::cout << "}\n";
 	}
+	chrono::system_clock::time_point ends = chrono::system_clock::now();
+	chrono::nanoseconds nano = ends-starts;
+	std::cout << "time: "<< nano.count() <<"seconds"<<endl;
 
 	FOLLOW_SET[starting].push_back("$");
 	FOLLOW();
