@@ -93,6 +93,24 @@ void dfs(int node) {
     }
 }
 
+//Iterated Dominace Frontier 계산
+int IDFparent;
+void IDF(int node){
+    if(Frontier[node].size()==0)
+        return;
+    
+    for(auto &i : Frontier[node]){
+
+        int frontierNode = i;
+
+        if(find(Frontier[IDFparent].begin(), Frontier[IDFparent].end(),frontierNode) == Frontier[IDFparent].end())
+            Frontier[IDFparent].push_back(frontierNode);
+        
+        if(Frontier[frontierNode].size()==0) return;
+        IDF(frontierNode);
+    }
+}
+
 int main() {
     int entry = 1,cnt=1;
     //--1--
