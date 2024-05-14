@@ -200,5 +200,22 @@ int main() {
         }
         cout << endl;
     }
+
+    for(int i=1;i<=node_size;i++){
+        IDFparent=i;
+        IDF(i);
+    }
+    
+    cout<<endl<<endl<<"------Iterated Dominant Frontier---------\n";
+    for(int i=1;i<=node_size;i++){
+        cout<<"DF+("<<i<<"): ";
+        for(int j=0;j<Frontier[i].size();j++){
+            if(Frontier[i].empty())
+                cout<<"x";
+            else
+                cout<<"Frontier[i][j]"<<" ";
+        }
+        cout<<endl;
+    }
     return 0;
 }
